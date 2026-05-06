@@ -78,3 +78,31 @@
 - **出力クリーニング**：Claude出力から冒頭定型文〜末尾免責文の範囲のみを抽出する`clean_output()`で余分なコメントを除去
 - **クエリのソート**：Notionの `created_time` 昇順でネタストックを取得（独自の並び順フィールドはDB未反映のため）
 - **GitHubリポジトリ**：`https://github.com/tonkatsuphotos/eyecare-labo`（プッシュは `gh auth login` 後に実行予定）
+
+---
+
+### 2026-05-06
+
+#### 作成・更新したファイル
+
+| ファイル | 内容 |
+|---|---|
+| `tools/generate_topics.py` | 当月・翌月の季節感を考慮してネタストック10件を生成しNotionに一括登録するスクリプト |
+| `tools/generate_image.py` | 最新記事を読み込みOpenAI gpt-image-1でサムネイル画像を生成・保存するスクリプト |
+| `.github/workflows/generate_article.yml` | タイムアウト延長・ネタ生成・画像生成ステップの追加など複数更新 |
+
+#### ワークフローの実行順序（更新後）
+
+```
+generate_topics.py → generate_article.py → generate_image.py → git commit & push
+```
+
+#### 技術的な決定事項
+
+- **タイムアウト設定**：`subprocess.run` の `timeout` を 180秒 → 600秒に変更。ワークフローの `timeout-minutes` も 10 → 20 に延長
+- **スケジュール変更**：ワークフローのcronを 2026-05-06 05:00 JST（= 2026-05-05 20:00 UTC）の1回限り実行に変更（`0 20 5 5 *`）
+- **ネタ生成の重複回避**：`past_themes.md`（使用済みテーマ）とNotionの既存ネタストック一覧の両方をプロンプトに含めてClaudeに渡す
+- **画像サイズ**：`1792x1024` はDALL-E 3専用。`gpt-image-1` の横長サポートサイズは `1536x1024` のためこちらを使用
+- **画像保存先**：`images/YYYYMM_タイトル.png`（記事ファイル名のstemをそのまま流用）
+- **画像APIコスト概算**：1枚あたり約$0.24（≒37円）。テキスト入力トークン＋出力画像6タイル（512×512換算）の合算
+- **必要なGitHub Secret**：既存の `NOTION_TOKEN`・`NOTION_DATABASE_ID`・`ANTHROPIC_API_KEY` に加えて `OPENAI_API_KEY` を追加する必要あり
