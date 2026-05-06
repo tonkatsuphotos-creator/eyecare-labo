@@ -35,6 +35,13 @@ jobs:
       - name: Claude Code CLI をインストール
         run: npm install -g @anthropic-ai/claude-code
 
+      - name: ネタストックを生成
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python tools/generate_topics.py
+
       - name: 記事を生成
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
