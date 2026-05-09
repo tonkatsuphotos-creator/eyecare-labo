@@ -45,6 +45,8 @@ NOTION_BLOCK_LIMIT = 100
 
 PROJECT_ROOT = Path(__file__).parent.parent
 
+GITHUB_ARTICLE_BASE = "https://github.com/tonkatsuphotos-creator/eyecare-labo/blob/main/articles"
+
 ARTICLE_FOOTER = """\
 ---
 アイケアLaBo四ツ谷店
@@ -110,13 +112,14 @@ def extract_props(page: dict) -> dict:
 
 
 def update_notion_status_and_link(page_id: str, filepath: str) -> None:
+    article_url = f"{GITHUB_ARTICLE_BASE}/{Path(filepath).name}"
     resp = requests.patch(
         f"{NOTION_API_BASE}/pages/{page_id}",
         headers=notion_headers(),
         json={
             "properties": {
                 "ステータス": {"select": {"name": "生成済"}},
-                "生成記事リンク": {"url": filepath},
+                "生成記事リンク": {"url": article_url},
             }
         },
         timeout=10,

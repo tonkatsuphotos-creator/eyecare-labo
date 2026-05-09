@@ -39,6 +39,7 @@ NOTION_DATABASE_ID = os.environ.get("NOTION_DATABASE_ID", "")
 NOTION_API_BASE = "https://api.notion.com/v1"
 NOTION_VERSION = "2022-06-28"
 
+GITHUB_ARTICLE_BASE = "https://github.com/tonkatsuphotos-creator/eyecare-labo/blob/main/articles"
 GITHUB_RAW_BASE = "https://raw.githubusercontent.com/tonkatsuphotos-creator/eyecare-labo/main/images"
 
 # gpt-image-2 がサポートする横長サイズ（1792x1024 は DALL-E 3 専用のため 1536x1024 を使用）
@@ -147,11 +148,11 @@ def _notion_headers() -> dict:
 
 def find_notion_page_by_article(article_path: Path) -> str | None:
     """生成記事リンクの一致でNotionページIDを返す。見つからなければNone。"""
-    rel_path = str(article_path.relative_to(PROJECT_ROOT))
+    article_url = f"{GITHUB_ARTICLE_BASE}/{article_path.name}"
     resp = requests.post(
         f"{NOTION_API_BASE}/databases/{NOTION_DATABASE_ID}/query",
         headers=_notion_headers(),
-        json={"filter": {"property": "生成記事リンク", "url": {"equals": rel_path}}},
+        json={"filter": {"property": "生成記事リンク", "url": {"equals": article_url}}},
         timeout=10,
     )
     results = resp.json().get("results", [])
