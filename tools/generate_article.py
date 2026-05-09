@@ -45,6 +45,19 @@ NOTION_BLOCK_LIMIT = 100
 
 PROJECT_ROOT = Path(__file__).parent.parent
 
+ARTICLE_FOOTER = """\
+---
+アイケアLaBo四ツ谷店
+〒160-0004
+東京都新宿区四谷1丁目18
+Belle四谷4F
+
+#眼の整体 #眼精疲労 #老眼 #近視
+#目の疲れ #スマホ疲れ
+#PC疲れ #目のケア #血流改善 #四ツ谷 #新宿
+#四ツ谷サロン #駅近サロン #頭痛 #肩こり
+---"""
+
 
 # ── Notion API ────────────────────────────────────────────
 
@@ -301,7 +314,7 @@ def main():
     print("\n[2/5] Claude Codeで記事を生成中...（最大10分）")
     prompt = build_prompt(meta)
     raw_output = generate_article_with_claude(prompt)
-    article_content = clean_output(raw_output)
+    article_content = clean_output(raw_output) + "\n\n" + ARTICLE_FOOTER
     print(f"  生成文字数 : {len(article_content)}字")
 
     # Step 3: Markdownファイルに保存
