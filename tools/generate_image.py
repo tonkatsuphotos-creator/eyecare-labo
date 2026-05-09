@@ -6,6 +6,7 @@ Usage:
     python tools/generate_image.py
 """
 
+import argparse
 import base64
 import os
 import sys
@@ -193,6 +194,10 @@ def save_image(article_path: Path, image_bytes: bytes) -> Path:
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dry-run", action="store_true", help="Notionへの書き込みをスキップして内容だけ表示する")
+    args = parser.parse_args()
+
     print("=" * 40)
     print("  画像生成フロー開始")
     print("=" * 40)
@@ -220,9 +225,14 @@ def main():
     else:
         page_id = find_notion_page_by_article(article_path)
         if page_id:
-            append_image_block_to_page(page_id, github_url)
-            print(f"  GitHub URL : {github_url}")
-            print(f"  Notion ID  : {page_id}")
+            if args.dry_run:
+                print("  [DRY-RUN] Notionページへの書き込みをスキップ")
+                print(f"  [DRY-RUN] 対象ページID: {page_id}")
+                print(f"  [DRY-RUN] 画像URL: {github_url}")
+            else:
+                append_image_block_to_page(page_id, github_url)
+                print(f"  GitHub URL : {github_url}")
+                print(f"  Notion ID  : {page_id}")
         else:
             print(f"  [警告] 対応するNotionページが見つかりませんでした。（記事: {article_path.name}）")
 
